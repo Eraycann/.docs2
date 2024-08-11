@@ -1,36 +1,46 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 
-function Post(){
-    const [error, Error] = useState(null);
-    const [isLoaded, setIsLoaded] = useState(false);    // data geldiğine, sayfa yüklenmede kalmadığına dair
-    const [postList, setPostList] = useState([]);       // gelen data aktarılacak
+function Post() {
+    const [error, setError] = useState(null);
+    const [isLoaded, setIsLoaded] = useState(false);    // Data geldiğine, sayfa yüklenmede kalmadığına dair
+    const [postList, setPostList] = useState([]);       // Gelen data aktarılacak
     
     useEffect(() => {
-        fetch("/posts")    // uzun tanımlamaktansa, package.json altında proxy tanımladık http..' faslını oraya yazdık.
-        // fetch ettikten sonra gelen response'yi parse et
-        .then(res => res.json())    
+        fetch("/posts", {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Basic ' + btoa('user:4b06ab86-27dd-477c-a699-1d67d04fa52c'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+            return res.json();
+        })
         .then(
             (result) => {
-                setIsLoaded(true)
-                setPostList(result)
+                setIsLoaded(true);
+                setPostList(result);
             },
             (error) => {
-                setIsLoaded(true)
-                setError(error)
+                setIsLoaded(true);
+                setError(error);
             }
-        )
-    }, [])
+        );
+    }, []);
 
-    if(error){                          // error durumu
-        return <div>Errorr!!</div>
-    } else if(isLoaded) {               // loading durumu
-        return <div> Loading... </div>;
+    if (error) {                          // Error durumu
+        return <div>Error: {error.message}</div>;
+    } else if (!isLoaded) {               // Loading durumu
+        return <div>Loading...</div>;
     } else {
-        return(
+        return (
             <ul>
                 {postList.map(post => (
-                    <li>
+                    <li key={post.id}>
                         {post.title} {post.text}
                     </li>
                 ))}

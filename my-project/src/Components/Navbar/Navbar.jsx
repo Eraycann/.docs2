@@ -7,7 +7,7 @@ function Navbar() {
         <div>
             {/* Home Linkine tıklandığında,  App.jsx > Switch > Route path="/" 'den gelerek, Home Component'ini derleyecektir. */}
             <li><Link to="/">Home</Link></li>   
-            <li><Link to={{pathname : '/users/' + userId}}></Link></li>
+            <li><Link to={{pathname : '/users/' + userId}}>User</Link></li>
         </div>
     )
 }
