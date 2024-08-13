@@ -21,7 +21,7 @@ function Home() {
     const [postList, setPostList] = useState([]);
     const classes = useStyles();
 
-
+    // PostForm.jsx'den bir post eklediğimiz zaman postların renderlenmesi için oluşturduk.
     const refreshPosts = () => {
         fetch("/api/posts")
         .then(res => res.json())
@@ -38,6 +38,10 @@ function Home() {
         )
     }
 
+    // useEffect ikinci parametresi [] bağımlılık dizisidir. 
+    // boş ise [] sayfa ilk yüklendiğinde çalışır ve dhaada çalışmaz. 
+    // bağımlılık eklendiğinde o bağımlılık değiştiğinde çalışır.
+    // kodun ilk hallerinde [postList] şeklindeydi.
     useEffect(() => {
         refreshPosts()
     }, [])

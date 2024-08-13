@@ -52,7 +52,10 @@ function Post(props) {
    const [isLoaded, setIsLoaded] = useState(false);
    const [commentList, setCommentList] = useState([]);
    const [isLiked, setIsLiked] = useState(false);
-   const isInitialMount = useRef(true);
+   const isInitialMount = useRef(true);   // sayfa ilk defa mı load ediliyor yoksa biri tıklayıpta commentleri açtı mı onu söyleyecektir.
+//    useState: Durum değeri tutar ve bu değer değiştiğinde bileşeni yeniden render eder.
+// useRef: Sabit bir referans veya değer tutar ve değiştiğinde bileşeni yeniden render etmez. Genellikle DOM referansları veya değerlerin saklanması için kullanılır.
+  // currentUser'ın id'si elimizdeki likes listesinde varsa, çoktan beğenmişiz demektir, kalbi kırmızı yapcaz.   
    const [likeCount, setLikeCount] = useState(likes.length);
    const [likeId, setLikeId] = useState(null);
    const [refresh, setRefresh] = useState(false);
@@ -63,10 +66,11 @@ function Post(props) {
    }
    const handleExpandClick = () => {
      setExpanded(!expanded);
-     refreshComments();
+     refreshComments(); // ilgili yere tıklandığında handleExpandClick fonksiyonu refreshComments fonksiyonunu çağırsın istiyoruz.
      console.log(commentList);
    };
 
+   // handleLike fonksiyonunu biz tanımladık
    const handleLike = () => {
     setIsLiked(!isLiked);
     if(!isLiked){
@@ -80,6 +84,9 @@ function Post(props) {
       
    }
    
+   // Çok benzediği için Home.jsx içerisindeki refreshPosts metodundan kopyaladık.
+   // Like sayıları direkt yüklendiğinde gelecekken, comments'ler önden yüklenmeyecek.
+   // tıklanıldığında databaseye istek atılacaktır.
    const refreshComments = () => {
     fetch("/api/comments?postId="+postId)
     .then(res => res.json())
@@ -105,21 +112,58 @@ function Post(props) {
     })
       .then((res) => res.json())
       .catch((err) => console.log(err))
+
+      /*
+      fetch("/likes", {
+        method: "POST",
+        headers: {
+          "Content-Type" : "application/json",
+        },
+        body : JSON.stringify({
+          postId : postId,
+          userId  : userId,
+        }),
+      })
+      .then(res) => res.json())
+      .catch((err) => console.log(err))
+      */
   }
 
   const deleteLike = () => {
+/**
+ * fetch("/likes/" + likedId, {
+ * method: DELETE,
+ * })
+ *  // .then(res) => res.json())  // burayı kaldırdık çünkü Delete metodu void dönecektir ve void'i JSON'a çevirmediği için hata olacak.
+ *  .catch(err) => console.log(err)
+ */
+
     DeleteWithAuth("/likes/"+likeId)
       .catch((err) => console.log(err))
   }
 
+  // Aktarılan PostResponse DTO içerisinde
+  // postId, post>userId, post>userName, postTitle, postText, likes(likeId, like>userId, like>postId) mevcut.
+  // checkLikes() metodu, likes listesini tarayıp, post>userId == likes>like>userId var mı bakcacaktır.
   const checkLikes = () => {
+    
+/*  var likeControl = likes.find(like => like.userId === userId);
+    if(likeControl != null) {
+      likeId = likeControl.id;
+      setIsLiked(true);
+    }  */
+    
     var likeControl = likes.find((like =>  ""+like.userId === localStorage.getItem("currentUser")));
     if(likeControl != null){
       setLikeId(likeControl.id);
       setIsLiked(true);
     }
   }
+
+  // Like sayıları direkt yüklendiğinde gelecekken, comments'ler önden yüklenmeyecek.
+  // tıklanıldığında databaseye istek atılacaktır.
   useEffect(() => {
+    // Postların commentleri bir defaya mahsus refleshlenmesini istediğimiz için, if else mekanizması kullandık.
     if(isInitialMount.current)
       isInitialMount.current = false;
     else
@@ -149,9 +193,11 @@ function Post(props) {
                   {disabled ?                    
                   <IconButton 
                     disabled
+                    // bir buton olduğu için onClick eventine handleLike diye bir fonksiyon tanımlayabiliyoruz
                     onClick={handleLike}
                     aria-label="add to favorites"
                     >
+                    {/* FavoriteIcon içerisine şartlı style biz ekledik */}
                     <FavoriteIcon style={isLiked? { color: "red" } : null} />
                     </IconButton> :
                     <IconButton 
@@ -174,6 +220,7 @@ function Post(props) {
                     </IconButton>
                 </CardActions>
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
+                {/* fixed prop'u, <Container> bileşeninin genişliğini sabitler, böylece içerik genişliği ekranın genişliğinden bağımsız olarak ayarlanır. */}
                     <Container fixed className = {classes.container}>
                     {error? "error" :
                     isLoaded? commentList.map(comment => (
