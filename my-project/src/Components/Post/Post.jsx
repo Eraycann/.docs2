@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
     }
   }));
 
-function Post(props) {
+function Post(props) {  // propsdan gelen verileri postun sahibinin verileridir.
    const {title, text, userId, userName, postId, likes} = props;
    const classes = useStyles();
    const [expanded, setExpanded] = useState(false);
@@ -59,6 +59,9 @@ function Post(props) {
    const [likeCount, setLikeCount] = useState(likes.length);
    const [likeId, setLikeId] = useState(null);
    const [refresh, setRefresh] = useState(false);
+   // Bir user Login ise disabled True, değilse False
+   // Post'ları listeleyen kişi Login olmadıysa, işlevini kesmek için lazım.
+   // Login olduğumuzda Post, Comment, Like atma fonksiyonlarını getiriyoruz.
    let disabled = localStorage.getItem("currentUser") == null ? true:false;
    
    const setCommentRefresh = () => {
@@ -118,6 +121,7 @@ function Post(props) {
         method: "POST",
         headers: {
           "Content-Type" : "application/json",
+          "Authorization" : localStorage.getItem("tokenKey")  // paketin headerına token ekledik.
         },
         body : JSON.stringify({
           postId : postId,
@@ -133,6 +137,10 @@ function Post(props) {
 /**
  * fetch("/likes/" + likedId, {
  * method: DELETE,
+ *  headers: {
+          "Content-Type" : "application/json",
+          "Authorization" : localStorage.getItem("tokenKey")  // paketin headerına token ekledik.
+        },
  * })
  *  // .then(res) => res.json())  // burayı kaldırdık çünkü Delete metodu void dönecektir ve void'i JSON'a çevirmediği için hata olacak.
  *  .catch(err) => console.log(err)
@@ -145,20 +153,22 @@ function Post(props) {
   // Aktarılan PostResponse DTO içerisinde
   // postId, post>userId, post>userName, postTitle, postText, likes(likeId, like>userId, like>postId) mevcut.
   // checkLikes() metodu, likes listesini tarayıp, post>userId == likes>like>userId var mı bakcacaktır.
+  
+  // checkLikes fonksiyonu, likes listesinde localStorage içindeki mevcut kullanıcıya ait bir like olup olmadığını kontrol eder.
+  // Eğer varsa, bu kullanıcının daha önce bu gönderiyi beğenip beğenmediğini belirler ve buna göre durumu günceller.
   const checkLikes = () => {
-    
-/*  var likeControl = likes.find(like => like.userId === userId);
-    if(likeControl != null) {
-      likeId = likeControl.id;
-      setIsLiked(true);
-    }  */
-    
+    // likes dizisinde, currentUser'ın id'si ile eşleşen bir like olup olmadığını kontrol eder
     var likeControl = likes.find((like =>  ""+like.userId === localStorage.getItem("currentUser")));
+    
+    // Eğer böyle bir like bulunursa
     if(likeControl != null){
-      setLikeId(likeControl.id);
-      setIsLiked(true);
+        // Like'ın id'sini state'e set eder
+        setLikeId(likeControl.id);
+        // Kullanıcının bu post'u beğenip beğenmediğini belirtmek için state'i günceller
+        setIsLiked(true);
     }
-  }
+}
+
 
   // Like sayıları direkt yüklendiğinde gelecekken, comments'ler önden yüklenmeyecek.
   // tıklanıldığında databaseye istek atılacaktır.
@@ -190,44 +200,46 @@ function Post(props) {
                     </Typography>
                 </CardContent>
                 <CardActions disableSpacing>
-                  {disabled ?                    
-                  <IconButton 
-                    disabled
-                    // bir buton olduğu için onClick eventine handleLike diye bir fonksiyon tanımlayabiliyoruz
-                    onClick={handleLike}
-                    aria-label="add to favorites"
-                    >
-                    {/* FavoriteIcon içerisine şartlı style biz ekledik */}
+                  {
+                  disabled 
+                  ?             
+// bir buton olduğu için onClick eventine handleLike diye bir fonksiyon tanımlayabiliyoruz       
+                    <IconButton disabled  onClick={handleLike}  aria-label="add to favorites">
                     <FavoriteIcon style={isLiked? { color: "red" } : null} />
-                    </IconButton> :
-                    <IconButton 
-                    onClick={handleLike}
-                    aria-label="add to favorites"
-                    >
+                    </IconButton> 
+                  :
+                    <IconButton onClick={handleLike} aria-label="add to favorites">
                     <FavoriteIcon style={isLiked? { color: "red" } : null} />
                     </IconButton>
                   }
                     {likeCount}
-                    <IconButton
-                    className={clsx(classes.expand, {
-                        [classes.expandOpen]: expanded,
-                    })}
-                    onClick={handleExpandClick}
-                    aria-expanded={expanded}
-                    aria-label="show more"
-                    >
-                    <CommentIcon />
+                    <IconButton className={clsx(classes.expand, { [classes.expandOpen]: expanded, })} onClick={handleExpandClick} aria-expanded={expanded} aria-label="show more">
+                      <CommentIcon />
                     </IconButton>
                 </CardActions>
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
                 {/* fixed prop'u, <Container> bileşeninin genişliğini sabitler, böylece içerik genişliği ekranın genişliğinden bağımsız olarak ayarlanır. */}
                     <Container fixed className = {classes.container}>
-                    {error? "error" :
-                    isLoaded? commentList.map(comment => (
-                      <Comment userId = {comment.userId} userName = {comment.userName} text = {comment.text}></Comment>
-                    )) : "Loading"}
-                    {disabled? "":
-                    <CommentForm userId = {localStorage.getItem("currentUser")} userName = {localStorage.getItem("userName")} postId = {postId} setCommentRefresh={setCommentRefresh}></CommentForm>}
+                    {
+                    error
+                    ? 
+                      "error"
+                    :
+                      isLoaded
+                      ? 
+                        commentList.map(comment => (
+                          <Comment userId = {comment.userId} userName = {comment.userName} text = {comment.text}></Comment>
+                        )) 
+                      : 
+                        "Loading"
+                    }
+                    {
+                    disabled
+                    ?
+                      ""
+                      :
+                      <CommentForm userId = {localStorage.getItem("currentUser")} userName = {localStorage.getItem("userName")} postId = {postId} setCommentRefresh={setCommentRefresh}></CommentForm>
+                    }
                     </Container>
                 </Collapse>
                 </Card>

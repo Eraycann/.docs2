@@ -30,14 +30,15 @@ const useStyles = makeStyles((theme) => ({
 
 function Navbar() {
     const classes = useStyles();
-    let history = useHistory();
+    let history = useHistory();   // history.go() kullanmak için lazım
 
     const onClick = () => {
+      // logout olduğunda localStorage içerisini temizliyoruz.
       localStorage.removeItem("tokenKey")
       localStorage.removeItem("currentUser")
       localStorage.removeItem("refreshKey")
       localStorage.removeItem("userName")
-      history.go(0)
+      history.go(0) // sayfayı yeniden yükler
     }
     return(
         <div>
@@ -50,9 +51,16 @@ function Navbar() {
           <Link className={classes.link} to="/">Home</Link>
           </Typography>
           <Typography variant="h6">
-            {localStorage.getItem("currentUser") == null ? <Link  className={classes.link} to="/auth">Login/Register</Link>:
-             <div><IconButton className={classes.link} onClick = {onClick}><LockOpen></LockOpen></IconButton>
-            <Link  className={classes.link} to={{pathname : '/users/' + localStorage.getItem("currentUser")}}>Profile</Link>
+            {/* localStorage'de currentUser kayıtlı değilse, /auth'a git
+            Varsa div renderla */}
+            {localStorage.getItem("currentUser") == null ?
+             <Link  className={classes.link} to="/auth">Login/Register</Link> :
+             // else kısmında da tek bir şey render lamam gerektiği için div altında birleştirdim.
+             <div>
+              <IconButton className={classes.link} onClick = {onClick}>
+                <LockOpen></LockOpen>
+              </IconButton>
+              <Link  className={classes.link} to={{pathname : '/users/' + localStorage.getItem("currentUser")}}>Profile</Link>
             </div>}
           
           </Typography>
