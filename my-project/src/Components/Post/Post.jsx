@@ -15,7 +15,7 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import CommentIcon from '@material-ui/icons/Comment';
 import Comment from "../Comment/Comment";
 import CommentForm from "../Comment/CommentForm";
-import { PostWithAuth, DeleteWithAuth } from "../../services/HttpService";
+import { PostWithAuth, DeleteWithAuth } from "../../Services/HttpService";
 
 const useStyles = makeStyles((theme) => ({
     root: {

@@ -8,7 +8,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import {ListItem, List, ListItemSecondaryAction, Radio} from '@material-ui/core';
-import { PutWithAuth } from '../../services/HttpService';
+import { PutWithAuth } from '../../Services/HttpService';
 const useStyles = makeStyles({
     root: {
       maxWidth: 345,
@@ -66,6 +66,9 @@ function Avatar(props) {
           </Typography>
         </CardContent>
       <CardActions>
+        {/* User dan Avatar a userId yollandı URL deki parametreden userId alındı o yollandı. */}
+        {/* mevcut user ile kıyaslanıyo ki böylece bir user diğer user in avatarını değiştiremeyecek görüntüleyemeyecek */}
+        {/* Yani Button render lamaya şart koşuldu */}
         {localStorage.getItem("currentUser") == userId ? <Button size="small" color="primary"  onClick={handleOpen}>
           Change Avatar
         </Button> : ""}

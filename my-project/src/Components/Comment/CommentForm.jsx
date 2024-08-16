@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {Link, useHistory} from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import { CardContent, InputAdornment, OutlinedInput, Avatar, Button} from "@material-ui/core";
-import { PostWithAuth, RefreshToken } from "../../services/HttpService";
+import { PostWithAuth, RefreshToken } from "../../Services/HttpService";
 const useStyles = makeStyles((theme) => ({
     comment : {
         display: "flex",

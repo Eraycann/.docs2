@@ -16,7 +16,7 @@ import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
 import Slide from '@material-ui/core/Slide';
 import Post from "../Post/Post";
-import { GetWithAuth } from '../../services/HttpService';
+import { GetWithAuth } from '../../Services/HttpService';
 
 const useStyles = makeStyles({
   root: {
@@ -61,16 +61,27 @@ function PopUp(props) {
         )
         }
 
-    const handleClose = () => {
-      setOpen(false);
-      setIsOpen(false);
-    };
+      const handleClose = () => {
+        // setOpen fonksiyonu, bu bileşenin (PopUp) kendi iç durumu olan "open" state'ini günceller.
+        // Bu, Dialog bileşeninin kapatılmasını sağlar.
+        setOpen(false);   
+        
+        // setIsOpen fonksiyonu, Parent bileşenden gelen ve bu PopUp bileşeninin açılıp kapanmasını 
+        // kontrol eden "isOpen" prop'unu günceller. Bu, PopUp bileşeninin dışarıdan 
+        // kontrol edilmesini sağlar. Dialog bileşeni kapatıldığında, bu state de false olarak güncellenir.
+        setIsOpen(false); 
+
+        // Özetle, setOpen bu bileşenin içindeki open state'ini kontrol ederken, setIsOpen üst bileşenden gelen ve PopUp'ın açılma durumunu kontrol eden isOpen prop'unu günceller.
+        // Bu iki state, PopUp bileşeninin hem içten hem de dıştan kapatılabilmesini sağlar.
+      };
+        
 
 
     useEffect(() => {
         setOpen(isOpen);
       }, [isOpen]);
 
+      // postId değiştiğinde getPost metodu çalışacak
     useEffect(() => {
         getPost();
     }, [postId])
@@ -132,6 +143,9 @@ function UserActivity(props) {
 
   return (
     <div>
+      {/* isOpen true olduğunda popUp oaçılacak ve bu selectedPostId ile getPost metodunda gidip postlara istek atıcak */}
+    {/* Şart ekledik çünkü yüklendiğinde direkt renderlanmasını istemiyoruz */}
+    {/* çünkü postId olmadığı için like list null oluyor, bu da hataya sebep oluyor */}
     {isOpen? <PopUp isOpen={isOpen} postId={selectedPost} setIsOpen={setIsOpen}/>: ""}
     <Paper className={classes.root}>
       <TableContainer className={classes.container}>

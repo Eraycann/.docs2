@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {FormControl, InputLabel, Input, Button, FormHelperText} from "@material-ui/core"
 import { useHistory } from "react-router";
-import { PostWithoutAuth } from "../../services/HttpService";
+import { PostWithoutAuth } from "../../Services/HttpService";
 function Auth() {
 
     const [username, setUsername] = useState("")
