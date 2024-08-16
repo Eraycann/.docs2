@@ -45,6 +45,7 @@ function User() {
         <div className={classes.root}>
             {/* Avatar içine userId yollandı ki içerde login olmuş userId ile kıyaslanacak */}
             {/* Bu sayede başka biri diğerinin avatarını değiştiremeycek ve aktivitelerini değiştiremeyecek */}
+            {/* Avatar içinde Button renderlama ve User içinde UserActivity renderlama şartı eklenerek düzen sağlandı */}
             {user? <Avatar avatarId={user.avatarId} userId={userId} userName={user.userName}/> : "" }
             {localStorage.getItem("currentUser") == userId ?<UserActivity userId={userId} /> : ""}
         </div>
